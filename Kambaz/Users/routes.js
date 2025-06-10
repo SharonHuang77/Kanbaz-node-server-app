@@ -81,8 +81,20 @@ export default function UserRoutes(app) {
   };
   app.get("/api/users/:userId/courses", findCoursesForEnrolledUser);
 
+  const findCoursesForCurrentUser = (req, res) => {
+    const currentUser = req.session["currentUser"];
+    if (!currentUser) {
+      res.sendStatus(401);
+      return;
+    }
+    const courses = courseDao.findCoursesForEnrolledUser(currentUser._id);
+    res.json(courses);
+  };
+  app.get("/api/users/current/courses", findCoursesForCurrentUser);
+
   const createCourse = (req, res) => {
     const currentUser = req.session["currentUser"];
+
 
     if (!currentUser) {
       res.status(401).json({ message: "User not authenticated" });
