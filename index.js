@@ -33,6 +33,10 @@ const sessionOptions = {
   secret: process.env.SESSION_SECRET || "kambaz",
   resave: false,
   saveUninitialized: false,
+  cookie: {
+    sameSite: "lax",
+    secure: false
+  }
 };
 if (process.env.NODE_ENV !== "development") {
   sessionOptions.proxy = true;
@@ -43,6 +47,7 @@ if (process.env.NODE_ENV !== "development") {
   };
 }
 app.use(session(sessionOptions));
+//console.log("🌍 NODE_ENV:", process.env.NODE_ENV);
 app.use(express.json());
 
 Lab5(app);
