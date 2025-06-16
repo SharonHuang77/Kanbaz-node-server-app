@@ -7,8 +7,9 @@ import { v4 as uuidv4 } from "uuid";
 
 export const createUser = (user) => {
   const newUser = { ...user, _id: uuidv4() };
-  users = [...users, newUser];
-  return newUser;
+  // users = [...users, newUser];
+  // return newUser;
+  return model.create(newUser);
 };
 export const findAllUsers = () => model.find();
 //export const findUserById = (userId) => users.find((user) => user._id === userId);
