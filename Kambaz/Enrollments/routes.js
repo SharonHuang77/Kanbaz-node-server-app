@@ -2,34 +2,70 @@ import * as enrollmentsDao from "./dao.js";
 
 export default function EnrollmentRoutes(app) {
   
-  app.get("/api/users/:userId/enrollments", (req, res) => {
-    res.json(enrollmentsDao.findEnrollmentsByUser(req.params.userId));
+  app.get("/api/enrollments", async (req, res) => {
+    const enrollments = await enrollmentsDao.findAllEnrollments();
+    res.json(enrollments);
   });
 
-  app.post("/api/users/:userId/enrollments/:courseId", (req, res) => {
-    const { userId, courseId } = req.params;
-    
-    // Check if already enrolled
-    const existingEnrollment = enrollmentsDao.findEnrollment(userId, courseId);
-    if (existingEnrollment) {
-      // Return success instead of error if already enrolled
-      return res.status(200).json({ 
-        message: "Already enrolled", 
-        enrollment: existingEnrollment 
-      });
+  app.get("/api/users/:userId/enrollments", async (req, res) => {
+    res.json(await enrollmentsDao.findCoursesForUser(req.params.userId));
+  });
+
+  const findEnrollmentsForCourse = async (req, res) => {
+    const { courseId } = req.params;
+    const enrollments = await enrollmentsDao.findUsersForCourse(courseId);
+    res.json(enrollments);
+  }
+  app.get("/api/courses/:courseId/enrollments", findEnrollmentsForCourse);
+
+
+  const enrollUserInCourse = async (req, res) => {
+    let { uid, cid } = req.params;
+    if (uid === "current") {
+      const currentUser = req.session["currentUser"];
+      uid = currentUser._id;
     }
+    const status = await enrollmentsDao.enrollUserInCourse(uid, cid);
+    res.send(status);
+  };
+  app.post("/api/users/:uid/courses/:cid", enrollUserInCourse);
+
+
+  // app.post("/api/users/:userId/enrollments/:courseId", async (req, res) => {
+  //   const { userId, courseId } = req.params;
     
-    // Enroll user
-    const newEnrollment = enrollmentsDao.enrollUserInCourse(userId, courseId);
-    res.status(201).json({ 
-      message: "Enrolled successfully", 
-      enrollment: newEnrollment 
-    });
-  });
+  //   // Check if already enrolled
+  //   const existingEnrollment = await enrollmentsDao.findEnrollment(userId, courseId);
+  //   if (existingEnrollment) {
+  //     // Return success instead of error if already enrolled
+  //     return res.status(200).json({ 
+  //       message: "Already enrolled", 
+  //       enrollment: existingEnrollment 
+  //     });
+  //   }
+    
+  //   // Enroll user
+  //   const newEnrollment = await enrollmentsDao.enrollUserInCourse(userId, courseId);
+  //   res.status(201).json({ 
+  //     message: "Enrolled successfully", 
+  //     enrollment: newEnrollment 
+  //   });
+  // });
+
+  const unenrollUserFromCourse = async (req, res) => {
+    let { uid, cid } = req.params;
+    if (uid === "current") {
+      const currentUser = req.session["currentUser"];
+      uid = currentUser._id;
+    }
+    const status = await enrollmentsDao.unenrollUserFromCourse(uid, cid);
+    res.send(status);
+  };
+  app.delete("/api/users/:uid/courses/:cid", unenrollUserFromCourse);
   
-  app.delete("/api/users/:userId/enrollments/:courseId", (req, res) => {
-    const { userId, courseId } = req.params;
-    enrollmentsDao.deleteEnrollment(userId, courseId);
-    res.sendStatus(200);
-  });
+  // app.delete("/api/users/:userId/enrollments/:courseId", async (req, res) => {
+  //   const { userId, courseId } = req.params;
+  //   await enrollmentsDao.unenrollUserFromCourse(userId, courseId);
+  //   res.sendStatus(200);
+  // });
 }

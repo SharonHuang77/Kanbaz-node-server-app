@@ -8,10 +8,14 @@ export async function findAllCourses() {
   return courses;
 }
 
-export function findCoursesForEnrolledUser(userId) {
-  const { courses, enrollments } = Database;
-  const enrolledCourses = courses.filter((course) =>
-    enrollments.some((enrollment) => enrollment.user === userId && enrollment.course === course._id));
+export async function findCoursesForEnrolledUser(userId) {
+  // const { courses, enrollments } = Database;
+  // const enrolledCourses = courses.filter((course) =>
+  //   enrollments.some((enrollment) => enrollment.user === userId && enrollment.course === course._id));
+  // return enrolledCourses;
+  const enrollments = await model.find({ user: userId });
+  const courseIds = enrollments.map(enrollment => enrollment.course);
+  const enrolledCourses = await model.find({ _id: { $in: courseIds } });
   return enrolledCourses;
 }
 
