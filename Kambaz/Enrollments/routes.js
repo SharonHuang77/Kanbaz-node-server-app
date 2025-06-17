@@ -19,16 +19,27 @@ export default function EnrollmentRoutes(app) {
   app.get("/api/courses/:courseId/enrollments", findEnrollmentsForCourse);
 
 
-  const enrollUserInCourse = async (req, res) => {
-    let { uid, cid } = req.params;
-    if (uid === "current") {
-      const currentUser = req.session["currentUser"];
-      uid = currentUser._id;
+  app.post("/api/users/:uid/courses/:cid", async (req, res) => {
+    try {
+      const { uid, cid } = req.params;
+      const result = await enrollmentsDao.enrollUserInCourse(uid, cid);
+      res.status(200).json(result);
+    } catch (err) {
+      console.error("💥 ENROLL FAIL:", err);
+      res.status(500).json({ error: "Enroll failed" });
     }
-    const status = await enrollmentsDao.enrollUserInCourse(uid, cid);
-    res.send(status);
-  };
-  app.post("/api/users/:uid/courses/:cid", enrollUserInCourse);
+  });
+
+  // const enrollUserInCourse = async (req, res) => {
+  //   let { uid, cid } = req.params;
+  //   if (uid === "current") {
+  //     const currentUser = req.session["currentUser"];
+  //     uid = currentUser._id;
+  //   }
+  //   const status = await enrollmentsDao.enrollUserInCourse(uid, cid);
+  //   res.send(status);
+  // };
+  // app.post("/api/users/:uid/courses/:cid", enrollUserInCourse);
 
 
   // app.post("/api/users/:userId/enrollments/:courseId", async (req, res) => {

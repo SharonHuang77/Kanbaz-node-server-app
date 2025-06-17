@@ -6,7 +6,12 @@ import model from "./model.js";
 export async function enrollUserInCourse(user, course) {
   // const { enrollments } = Database;
   // enrollments.push({ _id: uuidv4(), user: userId, course: courseId });
+  const _id = `${user}-${course}`;
+  const existing = await model.findOne({ _id });
+  if (existing) return existing;
+
   const newEnrollment = { user, course, _id: `${user}-${course}` };
+  // console.log("Enrolling user", user, "into course", course);
   return model.create(newEnrollment);
 }
 

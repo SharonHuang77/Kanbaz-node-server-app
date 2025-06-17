@@ -82,6 +82,15 @@ export default function UserRoutes(app) {
     res.json(currentUser);
   };
 
+  app.get("/api/users/profile", (req, res) => {
+    // console.log("Session ID:", req.sessionID);
+    // console.log("Session Data:", req.session);
+    const currentUser = req.session["currentUser"];
+    if (!currentUser) {
+      return res.status(401).send("Not logged in");
+    }
+    res.json(currentUser);
+  });
 
 
   app.post("/api/users", createUser);
@@ -92,7 +101,7 @@ export default function UserRoutes(app) {
   app.post("/api/users/signup", signup);
   app.post("/api/users/signin", signin);
   app.post("/api/users/signout", signout);
-  app.post("/api/users/profile", profile);
+  //app.post("/api/users/profile", profile);
 
   const findCoursesForEnrolledUser = async (req, res) => {
     let { userId } = req.params;

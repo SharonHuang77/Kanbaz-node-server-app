@@ -22,7 +22,7 @@ export async function findCoursesForEnrolledUser(userId) {
 export async function createCourse(course) {
   const newCourse = { ...course, _id: uuidv4() };
   //Database.courses = [...Database.courses, newCourse];
-  const actualCourse = model.create(newCourse);
+  const actualCourse = await model.create(newCourse);
   return actualCourse;
 }
 
